@@ -1,0 +1,62 @@
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-logistics}
+      POSTGRES_USER:     ${POSTGRES_USER:-logistics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-logistics_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-logistics} -d ${POSTGRES_DB:-logistics}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  # ── API Server ─────────────────────────────────────────────────────────────
+  api-server:
+    build:
+      context: .
+      dockerfile: artifacts/api-server/Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT:         8080
+      DATABASE_URL: postgresql://${POSTGRES_USER:-logistics}:${POSTGRES_PASSWORD:-logistics_pass}@postgres:5432/${POSTGRES_DB:-logistics}
+      PGHOST:       postgres
+      PGPORT:       5432
+      PGUSER:       ${POSTGRES_USER:-logistics}
+      PGPASSWORD:   ${POSTGRES_PASSWORD:-logistics_pass}
+      PGDATABASE:   ${POSTGRES_DB:-logistics}
+      NODE_ENV:     development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e",
+        "require('http').get('http://localhost:8080/api/healthz', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: artifacts/logistics-dashboard/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api-server:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:

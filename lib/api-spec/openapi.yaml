@@ -1,0 +1,1402 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Logistics Optimization Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: shipments
+    description: Shipment management
+  - name: routes
+    description: Route optimization (mock AI)
+  - name: inventory
+    description: Inventory management
+  - name: fleet
+    description: Fleet and driver management
+  - name: analytics
+    description: Analytics and KPIs
+  - name: events
+    description: Real-time event stream
+  - name: yard
+    description: Smart Yard Management
+  - name: fragmentation
+    description: Fragmented Logistics Optimization
+  - name: verification
+    description: Shipment Verification
+  - name: workforce
+    description: Workforce Management
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Shipments ────────────────────────────────────────────────────────────
+  /shipments:
+    get:
+      operationId: getShipments
+      tags: [shipments]
+      summary: List all shipments
+      responses:
+        "200":
+          description: List of shipments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Shipment"
+    post:
+      operationId: createShipment
+      tags: [shipments]
+      summary: Create a shipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShipmentBody"
+      responses:
+        "201":
+          description: Created shipment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shipment"
+
+  /shipments/{id}:
+    get:
+      operationId: getShipment
+      tags: [shipments]
+      summary: Get shipment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shipment detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentDetail"
+    put:
+      operationId: updateShipment
+      tags: [shipments]
+      summary: Update shipment status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateShipmentBody"
+      responses:
+        "200":
+          description: Updated shipment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shipment"
+
+  # ─── Routes ───────────────────────────────────────────────────────────────
+  /routes:
+    get:
+      operationId: getRoutes
+      tags: [routes]
+      summary: List all optimized routes
+      responses:
+        "200":
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Route"
+
+  /routes/optimize:
+    post:
+      operationId: optimizeRoute
+      tags: [routes]
+      summary: Request mock AI route optimization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptimizeRouteBody"
+      responses:
+        "200":
+          description: Optimized route
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Route"
+
+  # ─── Inventory ────────────────────────────────────────────────────────────
+  /inventory:
+    get:
+      operationId: getInventory
+      tags: [inventory]
+      summary: List inventory items
+      responses:
+        "200":
+          description: Inventory list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+    post:
+      operationId: createInventoryItem
+      tags: [inventory]
+      summary: Add inventory item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInventoryBody"
+      responses:
+        "201":
+          description: Created inventory item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  /inventory/{id}:
+    put:
+      operationId: updateInventoryItem
+      tags: [inventory]
+      summary: Update inventory item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInventoryBody"
+      responses:
+        "200":
+          description: Updated inventory item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  # ─── Fleet & Drivers ──────────────────────────────────────────────────────
+  /drivers:
+    get:
+      operationId: getDrivers
+      tags: [fleet]
+      summary: List all drivers
+      responses:
+        "200":
+          description: Driver list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Driver"
+
+  /fleet:
+    get:
+      operationId: getFleet
+      tags: [fleet]
+      summary: List all trucks with location
+      responses:
+        "200":
+          description: Fleet list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Truck"
+
+  /fleet/assign:
+    post:
+      operationId: assignDriver
+      tags: [fleet]
+      summary: Assign driver to truck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignDriverBody"
+      responses:
+        "200":
+          description: Assignment result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignDriverResult"
+
+  # ─── Analytics ────────────────────────────────────────────────────────────
+  /analytics/kpis:
+    get:
+      operationId: getAnalyticsKpis
+      tags: [analytics]
+      summary: Get logistics KPIs (mock AI)
+      responses:
+        "200":
+          description: KPI data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsKpis"
+
+  /analytics/fleet:
+    get:
+      operationId: getAnalyticsFleet
+      tags: [analytics]
+      summary: Get fleet utilization data
+      responses:
+        "200":
+          description: Fleet analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FleetAnalytics"
+
+  /analytics/demand:
+    get:
+      operationId: getAnalyticsDemand
+      tags: [analytics]
+      summary: Get demand prediction data (mock AI)
+      responses:
+        "200":
+          description: Demand analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemandAnalytics"
+
+  /analytics/delivery-trends:
+    get:
+      operationId: getDeliveryTrends
+      tags: [analytics]
+      summary: Get delivery performance trends
+      responses:
+        "200":
+          description: Delivery trends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeliveryTrend"
+
+  # ─── Events ───────────────────────────────────────────────────────────────
+  /events/latest:
+    get:
+      operationId: getLatestEvents
+      tags: [events]
+      summary: Get latest logistics events
+      responses:
+        "200":
+          description: Latest events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LogisticsEvent"
+
+  # ─── Yard Management ──────────────────────────────────────────────────────
+  /yard/slots:
+    get:
+      operationId: getYardSlots
+      tags: [yard]
+      summary: Get all yard parking slots
+      responses:
+        "200":
+          description: Yard slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YardSlot"
+
+  /yard/docks:
+    get:
+      operationId: getYardDocks
+      tags: [yard]
+      summary: Get all docks
+      responses:
+        "200":
+          description: Docks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dock"
+
+  /yard/schedule-arrival:
+    post:
+      operationId: scheduleArrival
+      tags: [yard]
+      summary: Schedule a truck arrival
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleArrivalBody"
+      responses:
+        "201":
+          description: Scheduled arrival
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TruckArrival"
+
+  /yard/assign-dock:
+    post:
+      operationId: assignDock
+      tags: [yard]
+      summary: Assign a truck to a dock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignDockBody"
+      responses:
+        "200":
+          description: Dock assignment result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignDockResult"
+
+  /yard/arrivals:
+    get:
+      operationId: getYardArrivals
+      tags: [yard]
+      summary: Get scheduled and recent arrivals
+      responses:
+        "200":
+          description: Arrivals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TruckArrival"
+
+  /yard/traffic:
+    get:
+      operationId: getYardTraffic
+      tags: [yard]
+      summary: Get yard congestion and traffic data (mock AI)
+      responses:
+        "200":
+          description: Yard traffic
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YardTraffic"
+
+  # ─── Fragmentation ────────────────────────────────────────────────────────
+  /fragmentation/analysis:
+    get:
+      operationId: getFragmentationAnalysis
+      tags: [fragmentation]
+      summary: Get fragmentation analysis (mock AI)
+      responses:
+        "200":
+          description: Analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FragmentationAnalysis"
+
+  /fragmentation/opportunities:
+    get:
+      operationId: getConsolidationOpportunities
+      tags: [fragmentation]
+      summary: List consolidation opportunities
+      responses:
+        "200":
+          description: Opportunities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsolidationOpportunity"
+
+  /fragmentation/optimize:
+    post:
+      operationId: optimizeFragmentation
+      tags: [fragmentation]
+      summary: Run mock AI optimization pass
+      responses:
+        "200":
+          description: Optimization result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OptimizationResult"
+
+  # ─── Verification ─────────────────────────────────────────────────────────
+  /verify/scan:
+    post:
+      operationId: scanShipment
+      tags: [verification]
+      summary: Scan and verify shipment barcode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanBody"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentVerification"
+
+  /verify/photo:
+    post:
+      operationId: photoVerifyShipment
+      tags: [verification]
+      summary: Submit photo verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhotoVerifyBody"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentVerification"
+
+  /verify/{shipmentId}:
+    get:
+      operationId: getVerification
+      tags: [verification]
+      summary: Get verification status for a shipment
+      parameters:
+        - name: shipmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentVerification"
+
+  /verify/report-damage:
+    post:
+      operationId: reportDamage
+      tags: [verification]
+      summary: Report shipment damage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DamageReportBody"
+      responses:
+        "200":
+          description: Damage report result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentVerification"
+
+  /verify/list:
+    get:
+      operationId: listVerifications
+      tags: [verification]
+      summary: List all verifications
+      responses:
+        "200":
+          description: All verifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShipmentVerification"
+
+  # ─── Workforce ────────────────────────────────────────────────────────────
+  /workers:
+    get:
+      operationId: getWorkers
+      tags: [workforce]
+      summary: List all workers
+      responses:
+        "200":
+          description: Workers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Worker"
+    post:
+      operationId: createWorker
+      tags: [workforce]
+      summary: Add a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkerBody"
+      responses:
+        "201":
+          description: Created worker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+
+  /workers/assign-task:
+    post:
+      operationId: assignWorkerTask
+      tags: [workforce]
+      summary: Assign a task to a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignTaskBody"
+      responses:
+        "200":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerTask"
+
+  /workers/tasks:
+    get:
+      operationId: getWorkerTasks
+      tags: [workforce]
+      summary: List all worker tasks
+      responses:
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkerTask"
+
+  /workers/performance:
+    get:
+      operationId: getWorkerPerformance
+      tags: [workforce]
+      summary: Get worker performance insights (mock AI)
+      responses:
+        "200":
+          description: Performance data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkerPerformance"
+
+  /workers/rewards:
+    get:
+      operationId: getWorkerRewards
+      tags: [workforce]
+      summary: Get worker reward leaderboard
+      responses:
+        "200":
+          description: Rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkerReward"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    # ── Shipments ──────────────────────────────────────────────────────────
+    Shipment:
+      type: object
+      properties:
+        id:
+          type: string
+        origin:
+          type: string
+        destination:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_transit, delivered, delayed, cancelled]
+        driver_id:
+          type: string
+          nullable: true
+        estimated_delivery:
+          type: string
+        weight_kg:
+          type: number
+        priority:
+          type: string
+          enum: [low, medium, high]
+        created_at:
+          type: string
+      required: [id, origin, destination, status, estimated_delivery, weight_kg, priority, created_at]
+
+    ShipmentDetail:
+      allOf:
+        - $ref: "#/components/schemas/Shipment"
+        - type: object
+          properties:
+            events:
+              type: array
+              items:
+                $ref: "#/components/schemas/ShipmentEvent"
+          required: [events]
+
+    ShipmentEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        shipment_id:
+          type: string
+        event_type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+        location:
+          type: string
+      required: [id, shipment_id, event_type, description, timestamp]
+
+    CreateShipmentBody:
+      type: object
+      properties:
+        origin:
+          type: string
+        destination:
+          type: string
+        weight_kg:
+          type: number
+        priority:
+          type: string
+          enum: [low, medium, high]
+        estimated_delivery:
+          type: string
+      required: [origin, destination, weight_kg, priority, estimated_delivery]
+
+    UpdateShipmentBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_transit, delivered, delayed, cancelled]
+        driver_id:
+          type: string
+      required: [status]
+
+    # ── Routes ────────────────────────────────────────────────────────────
+    Route:
+      type: object
+      properties:
+        route_id:
+          type: string
+        shipment_id:
+          type: string
+          nullable: true
+        origin:
+          type: string
+        destination:
+          type: string
+        distance_km:
+          type: number
+        estimated_time:
+          type: string
+        traffic_level:
+          type: string
+          enum: [low, moderate, high]
+        optimized:
+          type: boolean
+        waypoints:
+          type: array
+          items:
+            type: string
+        fuel_savings_pct:
+          type: number
+        created_at:
+          type: string
+      required: [route_id, origin, destination, distance_km, estimated_time, traffic_level, optimized, waypoints, fuel_savings_pct, created_at]
+
+    OptimizeRouteBody:
+      type: object
+      properties:
+        origin:
+          type: string
+        destination:
+          type: string
+        shipment_id:
+          type: string
+      required: [origin, destination]
+
+    # ── Inventory ─────────────────────────────────────────────────────────
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        product_name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        warehouse:
+          type: string
+        category:
+          type: string
+        predicted_demand:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        confidence:
+          type: string
+        reorder_point:
+          type: integer
+        unit_price:
+          type: number
+        updated_at:
+          type: string
+      required: [id, product_name, sku, quantity, warehouse, category, predicted_demand, confidence, reorder_point, unit_price, updated_at]
+
+    CreateInventoryBody:
+      type: object
+      properties:
+        product_name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        warehouse:
+          type: string
+        category:
+          type: string
+        reorder_point:
+          type: integer
+        unit_price:
+          type: number
+      required: [product_name, sku, quantity, warehouse, category, reorder_point, unit_price]
+
+    UpdateInventoryBody:
+      type: object
+      properties:
+        quantity:
+          type: integer
+        warehouse:
+          type: string
+      required: [quantity]
+
+    # ── Fleet & Drivers ───────────────────────────────────────────────────
+    Driver:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        license_number:
+          type: string
+        status:
+          type: string
+          enum: [available, on_duty, off_duty, on_leave]
+        phone:
+          type: string
+        truck_id:
+          type: string
+          nullable: true
+        rating:
+          type: number
+        total_deliveries:
+          type: integer
+      required: [id, name, license_number, status, phone, rating, total_deliveries]
+
+    Truck:
+      type: object
+      properties:
+        truck_id:
+          type: string
+        license_plate:
+          type: string
+        model:
+          type: string
+        capacity_kg:
+          type: number
+        status:
+          type: string
+          enum: [available, in_transit, maintenance, idle]
+        driver_id:
+          type: string
+          nullable: true
+        lat:
+          type: number
+        lng:
+          type: number
+        speed_kmh:
+          type: number
+        fuel_pct:
+          type: number
+        last_updated:
+          type: string
+      required: [truck_id, license_plate, model, capacity_kg, status, lat, lng, speed_kmh, fuel_pct, last_updated]
+
+    AssignDriverBody:
+      type: object
+      properties:
+        driver_id:
+          type: string
+        truck_id:
+          type: string
+      required: [driver_id, truck_id]
+
+    AssignDriverResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        driver_id:
+          type: string
+        truck_id:
+          type: string
+      required: [success, message, driver_id, truck_id]
+
+    # ── Analytics ─────────────────────────────────────────────────────────
+    AnalyticsKpis:
+      type: object
+      properties:
+        fleet_utilization:
+          type: number
+        active_shipments:
+          type: integer
+        delayed_shipments:
+          type: integer
+        on_time_delivery_rate:
+          type: number
+        avg_delivery_time_hrs:
+          type: number
+        demand_spike_region:
+          type: string
+        revenue_today:
+          type: number
+        cost_savings_pct:
+          type: number
+        ai_confidence:
+          type: string
+      required: [fleet_utilization, active_shipments, delayed_shipments, on_time_delivery_rate, avg_delivery_time_hrs, demand_spike_region, revenue_today, cost_savings_pct, ai_confidence]
+
+    FleetAnalytics:
+      type: object
+      properties:
+        total_trucks:
+          type: integer
+        in_transit:
+          type: integer
+        available:
+          type: integer
+        maintenance:
+          type: integer
+        idle:
+          type: integer
+        avg_fuel_pct:
+          type: number
+        utilization_history:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtilizationPoint"
+      required: [total_trucks, in_transit, available, maintenance, idle, avg_fuel_pct, utilization_history]
+
+    UtilizationPoint:
+      type: object
+      properties:
+        hour:
+          type: string
+        utilization:
+          type: number
+      required: [hour, utilization]
+
+    DemandAnalytics:
+      type: object
+      properties:
+        predictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DemandPrediction"
+        spike_regions:
+          type: array
+          items:
+            type: string
+        overall_trend:
+          type: string
+          enum: [rising, stable, declining]
+      required: [predictions, spike_regions, overall_trend]
+
+    DemandPrediction:
+      type: object
+      properties:
+        product:
+          type: string
+        predicted_demand:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        confidence:
+          type: string
+        region:
+          type: string
+        change_pct:
+          type: number
+      required: [product, predicted_demand, confidence, region, change_pct]
+
+    DeliveryTrend:
+      type: object
+      properties:
+        date:
+          type: string
+        delivered:
+          type: integer
+        delayed:
+          type: integer
+        cancelled:
+          type: integer
+        success_rate:
+          type: number
+      required: [date, delivered, delayed, cancelled, success_rate]
+
+    # ── Events ────────────────────────────────────────────────────────────
+    LogisticsEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        event:
+          type: string
+        shipment_id:
+          type: string
+          nullable: true
+        truck_id:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        timestamp:
+          type: string
+      required: [id, event, severity, timestamp]
+
+    # ── Yard Management ───────────────────────────────────────────────────
+    YardSlot:
+      type: object
+      properties:
+        id:
+          type: string
+        zone:
+          type: string
+        status:
+          type: string
+          enum: [free, occupied, reserved]
+        truck_id:
+          type: string
+          nullable: true
+        dock_id:
+          type: string
+          nullable: true
+      required: [id, zone, status]
+
+    Dock:
+      type: object
+      properties:
+        id:
+          type: string
+        warehouse_id:
+          type: string
+        name:
+          type: string
+        assigned_truck:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [available, loading, unloading, blocked]
+      required: [id, warehouse_id, name, status]
+
+    TruckArrival:
+      type: object
+      properties:
+        id:
+          type: string
+        truck_id:
+          type: string
+        scheduled_time:
+          type: string
+        actual_arrival:
+          type: string
+          nullable: true
+        assigned_slot:
+          type: string
+          nullable: true
+        dock_id:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [scheduled, arrived, docked, departed]
+      required: [id, truck_id, scheduled_time, status]
+
+    YardTraffic:
+      type: object
+      properties:
+        congestion_level:
+          type: string
+          enum: [low, medium, high, critical]
+        trucks_in_yard:
+          type: integer
+        avg_wait_minutes:
+          type: number
+        recommended_dock:
+          type: string
+        estimated_wait_minutes:
+          type: number
+        ai_confidence:
+          type: string
+      required: [congestion_level, trucks_in_yard, avg_wait_minutes, recommended_dock, estimated_wait_minutes, ai_confidence]
+
+    ScheduleArrivalBody:
+      type: object
+      properties:
+        truck_id:
+          type: string
+        scheduled_time:
+          type: string
+      required: [truck_id, scheduled_time]
+
+    AssignDockBody:
+      type: object
+      properties:
+        truck_id:
+          type: string
+        dock_id:
+          type: string
+      required: [truck_id, dock_id]
+
+    AssignDockResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        dock_id:
+          type: string
+        estimated_wait_minutes:
+          type: number
+      required: [success, message, dock_id, estimated_wait_minutes]
+
+    # ── Fragmentation ─────────────────────────────────────────────────────
+    FragmentationAnalysis:
+      type: object
+      properties:
+        total_shipments:
+          type: integer
+        fragmented_count:
+          type: integer
+        carriers_involved:
+          type: integer
+        network_efficiency_score:
+          type: number
+        potential_savings_pct:
+          type: number
+        ai_confidence:
+          type: string
+      required: [total_shipments, fragmented_count, carriers_involved, network_efficiency_score, potential_savings_pct, ai_confidence]
+
+    ConsolidationOpportunity:
+      type: object
+      properties:
+        id:
+          type: string
+        route:
+          type: string
+        shipment_ids:
+          type: array
+          items:
+            type: string
+        carrier_count:
+          type: integer
+        cost_reduction_pct:
+          type: number
+        truck_utilization_increase_pct:
+          type: number
+        recommendation:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+      required: [id, route, shipment_ids, carrier_count, cost_reduction_pct, truck_utilization_increase_pct, recommendation, priority]
+
+    OptimizationResult:
+      type: object
+      properties:
+        optimization:
+          type: string
+        cost_reduction:
+          type: string
+        truck_utilization_increase:
+          type: string
+        shipments_consolidated:
+          type: integer
+        estimated_savings_inr:
+          type: number
+        ai_confidence:
+          type: string
+      required: [optimization, cost_reduction, truck_utilization_increase, shipments_consolidated, estimated_savings_inr, ai_confidence]
+
+    # ── Verification ──────────────────────────────────────────────────────
+    ShipmentVerification:
+      type: object
+      properties:
+        id:
+          type: string
+        shipment_id:
+          type: string
+        scan_code:
+          type: string
+          nullable: true
+        verification_status:
+          type: string
+          enum: [pending, passed, failed, damaged]
+        image_url:
+          type: string
+          nullable: true
+        damage_flag:
+          type: boolean
+        damage_description:
+          type: string
+          nullable: true
+        verified_by:
+          type: string
+          nullable: true
+        confidence:
+          type: string
+        timestamp:
+          type: string
+      required: [id, shipment_id, verification_status, damage_flag, confidence, timestamp]
+
+    ScanBody:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+        scan_code:
+          type: string
+        verified_by:
+          type: string
+      required: [shipment_id, scan_code]
+
+    PhotoVerifyBody:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+        image_url:
+          type: string
+        verified_by:
+          type: string
+      required: [shipment_id, image_url]
+
+    DamageReportBody:
+      type: object
+      properties:
+        shipment_id:
+          type: string
+        damage_description:
+          type: string
+        verified_by:
+          type: string
+      required: [shipment_id, damage_description]
+
+    # ── Workforce ─────────────────────────────────────────────────────────
+    Worker:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [loader, driver, supervisor, scanner, forklift_operator]
+        warehouse_id:
+          type: string
+        performance_score:
+          type: number
+        reward_points:
+          type: integer
+        tasks_completed:
+          type: integer
+        status:
+          type: string
+          enum: [active, on_break, off_duty]
+        ai_recommendation:
+          type: string
+          nullable: true
+      required: [id, name, role, warehouse_id, performance_score, reward_points, tasks_completed, status]
+
+    WorkerTask:
+      type: object
+      properties:
+        id:
+          type: string
+        worker_id:
+          type: string
+        task_type:
+          type: string
+        description:
+          type: string
+        assigned_time:
+          type: string
+        completed:
+          type: boolean
+        completed_time:
+          type: string
+          nullable: true
+        priority:
+          type: string
+          enum: [low, medium, high]
+      required: [id, worker_id, task_type, description, assigned_time, completed, priority]
+
+    CreateWorkerBody:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+          enum: [loader, driver, supervisor, scanner, forklift_operator]
+        warehouse_id:
+          type: string
+      required: [name, role, warehouse_id]
+
+    AssignTaskBody:
+      type: object
+      properties:
+        worker_id:
+          type: string
+        task_type:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+      required: [worker_id, task_type, description]
+
+    WorkerPerformance:
+      type: object
+      properties:
+        worker_id:
+          type: string
+        worker_name:
+          type: string
+        productivity_score:
+          type: number
+        tasks_completed_today:
+          type: integer
+        avg_task_time_minutes:
+          type: number
+        recommendation:
+          type: string
+        eligible_for_reward:
+          type: boolean
+      required: [worker_id, worker_name, productivity_score, tasks_completed_today, avg_task_time_minutes, recommendation, eligible_for_reward]
+
+    WorkerReward:
+      type: object
+      properties:
+        worker_id:
+          type: string
+        worker_name:
+          type: string
+        reward_points:
+          type: integer
+        tier:
+          type: string
+          enum: [bronze, silver, gold, platinum]
+        last_reward_reason:
+          type: string
+          nullable: true
+      required: [worker_id, worker_name, reward_points, tier]
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # NOTE: paths for new services appended below
+  # (OpenAPI paths must be at top-level `paths:` key, appended via edit)

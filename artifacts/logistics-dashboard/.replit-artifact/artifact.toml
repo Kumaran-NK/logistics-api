@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Logistics Control Tower"
+version = "1.0.0"
+id = "artifacts/logistics-dashboard"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 20338
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/logistics-dashboard run dev"
+
+[services.env]
+PORT = "20338"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/logistics-dashboard", "run", "build"]
+publicDir = "artifacts/logistics-dashboard/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

@@ -1,0 +1,17 @@
+packages:
+  "recharts": "For premium analytics charts and data visualization"
+  "framer-motion": "For sophisticated page transitions and tactical UI animations"
+  "date-fns": "For formatting timestamps"
+  "clsx": "For conditional class merging"
+  "tailwind-merge": "For tailwind class merging"
+  "lucide-react": "For UI icons"
+
+images:
+  - path: "artifacts/logistics-dashboard/public/images/tactical-map.png"
+    description: "Dark tactical military-grade digital map background with glowing cyan and neon blue grid lines, abstract topographical contours, radar circles, HUD interface elements, deep navy background"
+    aspect_ratio: "16:9"
+
+notes:
+  - The application uses an exclusive tactical dark mode theme.
+  - React Query hooks are imported from the generated @workspace/api-client-react package.
+  - New pages: Yard, Fragmentation, Verification, Workforce.
