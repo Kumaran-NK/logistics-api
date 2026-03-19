@@ -1,8 +1,20 @@
 #!/bin/sh
 set -e
 
-echo "==> Waiting for PostgreSQL at ${PGHOST:-postgres}:${PGPORT:-5432}..."
-until pg_isready -h "${PGHOST:-postgres}" -p "${PGPORT:-5432}" -U "${PGUSER:-logistics}" 2>/dev/null; do
+# Extract host and port from DATABASE_URL if set, otherwise fall back to env vars
+if [ -n "$DATABASE_URL" ]; then
+  DB_HOST=$(echo "$DATABASE_URL" | sed 's/.*@\([^:/]*\).*/\1/')
+  DB_PORT=$(echo "$DATABASE_URL" | sed 's/.*:\([0-9]*\)\/.*/\1/')
+  DB_USER=$(echo "$DATABASE_URL" | sed 's/.*\/\/\([^:]*\):.*/\1/')
+  DB_PORT=${DB_PORT:-5432}
+else
+  DB_HOST="${PGHOST:-postgres}"
+  DB_PORT="${PGPORT:-5432}"
+  DB_USER="${PGUSER:-logistics}"
+fi
+
+echo "==> Waiting for PostgreSQL at ${DB_HOST}:${DB_PORT}..."
+until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" 2>/dev/null; do
   sleep 1
 done
 echo "==> PostgreSQL is ready."
